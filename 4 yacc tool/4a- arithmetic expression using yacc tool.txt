@@ -1,0 +1,311 @@
+Install Required Tools
+sudo apt update
+sudo apt install flex bison gcc
+
+
+flex --version
+bison --version
+gcc --version
+
+
+
+
+create file 
+
+
+nano calc.l
+
+%{
+#include "y.tab.h"
+#include <stdio.h>
+#include <stdlib.h>
+%}
+
+%%
+[0-9]+      { yylval = atoi(yytext); return NUMBER; }
+[ \t]       ;
+\n          return '\n';
+.           return yytext[0];
+%%
+
+int yywrap() { return 1; }
+
+
+nano calc.y
+
+%{
+#include <stdio.h>
+#include <stdlib.h>
+
+int yylex();
+void yyerror(const char *s);
+%}
+
+%token NUMBER
+
+%left '+' '-'
+%left '*' '/'
+
+%%
+input:
+    expr '\n'   { printf("Result = %d\n", $1); }
+    ;
+
+expr:
+      expr '+' expr   { $$ = $1 + $3; }
+    | expr '-' expr   { $$ = $1 - $3; }
+    | expr '*' expr   { $$ = $1 * $3; }
+    | expr '/' expr   { $$ = $1 / $3; }
+    | '(' expr ')'    { $$ = $2; }
+    | NUMBER          { $$ = $1; }
+    ;
+%%
+
+int main()
+{
+    printf("Enter expression: ");
+    yyparse();
+    return 0;
+}
+
+void yyerror(const char *s)
+{
+    printf("Error: %s\n", s);
+}
+
+
+Now compile again
+
+yacc -d calc.y
+flex calc.l
+gcc lex.yy.c y.tab.c -o calc
+./calc
+
+
+Output
+
+Enter expression: 5 + 8 * 2
+Result = 21
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+explination:
+
+
+
+
+Here’s how you can **explain 4.A (Arithmetic Expression using YACC + LEX)** to your teacher — clean, confident, and viva-ready.
+
+---
+
+# 🧠 What we did in **4.A**
+
+We created a program using **LEX and YACC** to **evaluate arithmetic expressions** like:
+
+```text
+5 + 8 * 2 → 21
+```
+
+
+
+---
+
+# 🔹 Overall Idea
+
+We divided the work into two parts:
+
+---
+
+## 1️⃣ LEX (Lexical Analyzer)
+
+👉 LEX reads input and converts it into **tokens**
+
+We defined:
+
+* `NUMBER` → for digits (5, 8, 2)
+* Operators → `+`, `-`, `*`, `/`
+* Parentheses → `(`, `)`
+
+---
+
+### Example Input:
+
+```text
+5 + 8 * 2
+```
+
+LEX converts it into:
+
+```text id="9js6bl"
+NUMBER + NUMBER * NUMBER
+```
+
+---
+
+## 2️⃣ YACC (Parser)
+
+👉 YACC checks the structure and **evaluates the expression**
+
+---
+
+# 🔹 Grammar we used
+
+```c id="y9vf16"
+expr:
+      expr '+' expr
+    | expr '-' expr
+    | expr '*' expr
+    | expr '/' expr
+    | '(' expr ')'
+    | NUMBER
+```
+
+👉 This grammar allows:
+
+* Addition, subtraction, multiplication, division
+* Parentheses
+* Numbers
+
+---
+
+# 🔹 How evaluation happens
+
+### Example: `5 + 8 * 2`
+
+1. LEX → tokens
+   → `NUMBER + NUMBER * NUMBER`
+
+2. YACC applies rules step by step:
+
+* First evaluates:
+
+```text id="7mbnwq"
+8 * 2 = 16
+```
+
+* Then:
+
+```text id="61cbnu"
+5 + 16 = 21
+```
+
+---
+
+# 🔹 Operator Precedence (VERY IMPORTANT)
+
+We added:
+
+```c id="y2o48f"
+%left '+' '-'
+%left '*' '/'
+```
+
+👉 This ensures:
+
+* `*` and `/` have higher priority than `+` and `-`
+
+Without this:
+❌ YACC gives **shift/reduce conflicts**
+
+---
+
+# 🔹 Semantic Actions
+
+Each rule has computation:
+
+```c id="sqbbz3"
+expr '+' expr   { $$ = $1 + $3; }
+```
+
+👉 Meaning:
+
+* `$1` = left operand
+* `$3` = right operand
+* `$$` = result
+
+---
+
+# 🔹 Flow of execution
+
+1. User enters expression
+2. LEX converts input → tokens
+3. YACC matches grammar
+4. Performs calculations
+5. Prints result
+
+---
+
+# 🔹 Key Concepts to say in Viva 💯
+
+👉 “LEX performs tokenization of numbers and operators.”
+
+👉 “YACC parses the expression using grammar rules.”
+
+👉 “Semantic actions are used to evaluate expressions.”
+
+👉 “Operator precedence is handled using %left to avoid ambiguity.”
+
+---
+
+# 🔹 One-line answer (quick viva)
+
+> “We used LEX for tokenizing numbers and operators and YACC grammar with semantic actions to evaluate arithmetic expressions.”
+
+---
+
+# ⚠️ Important Viva Questions
+
+### ❓ Why shift-reduce conflict occurred?
+
+👉 Because grammar is ambiguous without precedence rules
+
+---
+
+### ❓ How did you solve it?
+
+👉 Using:
+
+```c id="x6pg7n"
+%left '+' '-'
+%left '*' '/'
+```
+
+---
+
+### ❓ What is `$$`, `$1`, `$3`?
+
+👉 Used for passing values in YACC rules
+
+---
+
+### ❓ What is role of parentheses?
+
+👉 To override precedence
+
+---
+
+# 🚀 Final Understanding
+
+✔ Supports expressions
+✔ Follows operator precedence
+✔ Evaluates correctly
+✔ Uses LEX + YACC together
+
+
+
+
+

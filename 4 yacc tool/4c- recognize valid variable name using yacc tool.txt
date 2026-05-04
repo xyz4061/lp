@@ -1,0 +1,235 @@
+Install Required Tools
+sudo apt update
+sudo apt install flex bison gcc
+
+
+flex --version
+bison --version
+gcc --version
+
+
+
+
+create file 
+
+nano var.l
+
+
+%{
+#include "y.tab.h"
+#include <stdio.h>
+#include <stdlib.h>
+%}
+
+%%
+[a-zA-Z]    return A;
+[0-9]       return N;
+_           return U;
+\n          return 0;
+.           return yytext[0];
+%%
+
+int yywrap() { return 1; }
+
+
+nano var.y
+
+%{
+#include <stdio.h>
+#include <stdlib.h>
+
+int yylex();
+void yyerror();
+%}
+
+%token A N U
+
+%%
+start:
+      A rest   { printf("valid variable\n"); }
+    ;
+
+rest:
+      A rest
+    | N rest
+    | U rest
+    | /* empty */
+    ;
+%%
+
+int main()
+{
+    printf("Enter variable name: ");
+    yyparse();
+    return 0;
+}
+
+void yyerror()
+{
+    printf("invalid variable\n");
+    exit(0);
+}
+
+
+
+Compile & Run
+yacc -d var.y
+flex var.l
+gcc lex.yy.c y.tab.c -o var
+./var
+
+
+Test Cases
+Enter variable name: Stud_Name1
+valid variable
+
+Enter variable name: 1abc
+invalid variable
+
+
+
+
+
+
+explaination:
+
+
+
+# 🧠 What we did in **4.C (Valid Variable using YACC + LEX)**
+
+In this part, we built a **compiler-like program** using **LEX and YACC** to check whether a given variable name is valid or not.
+
+---
+
+# 🔹 Overall Idea
+
+We divide the work into two parts:
+
+### 1️⃣ **LEX (Lexical Analyzer)**
+
+* It reads the input **character by character**
+* Converts it into **tokens**
+
+We defined 3 tokens:
+
+* `A` → alphabet (`a-z`, `A-Z`)
+* `N` → number (`0-9`)
+* `U` → underscore (`_`)
+
+So for input:
+
+```text
+Stud_Name1
+```
+
+LEX converts it like:
+
+```text
+A A A A U A A A A N
+```
+
+---
+
+### 2️⃣ **YACC (Parser)**
+
+* It checks whether the sequence of tokens follows valid rules (grammar)
+
+---
+
+# 🔹 Grammar we used
+
+```c
+start:
+    A rest
+```
+
+👉 This means:
+
+* Variable must **start with a letter**
+
+---
+
+```c
+rest:
+      A rest
+    | N rest
+    | U rest
+    | empty
+```
+
+👉 This means:
+
+* After first letter, we can have:
+
+  * letters
+  * numbers
+  * underscore
+  * or nothing
+
+---
+
+# 🔹 How it works step-by-step
+
+### Example: `Stud_Name1`
+
+1. LEX converts it into tokens
+   → `A A A A U A A A A N`
+
+2. YACC checks:
+
+   * First symbol is `A` ✅ (valid start)
+   * Remaining follow `rest` rule ✅
+
+3. So output:
+
+```text
+valid variable
+```
+
+---
+
+### Example: `1abc`
+
+1. First token = `N`
+2. But grammar requires starting with `A`
+   ❌ So parsing fails
+
+Output:
+
+```text
+invalid variable
+```
+
+---
+
+# 🔹 What happens internally
+
+* LEX sends tokens → YACC
+* YACC tries to match grammar rules
+* If matched → prints **valid variable**
+* If not → `yyerror()` is called → prints **invalid variable**
+
+---
+
+# 🔹 Key Concepts (say these in viva 💯)
+
+👉 “We used LEX for tokenization and YACC for syntax checking.”
+
+👉 “The grammar ensures that variable names start with a letter and can contain letters, digits, and underscores.”
+
+👉 “If parsing succeeds, it is valid; otherwise, yyerror handles invalid cases.”
+
+---
+
+# 🔹 One-line explanation (if teacher asks quickly)
+
+> “We used LEX to classify characters into tokens and YACC grammar to ensure the variable starts with a letter and follows valid naming rules.”
+
+---
+
+
+
+
+
+
+

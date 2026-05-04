@@ -1,0 +1,318 @@
+Install Required Software:
+
+sudo apt update
+sudo apt install flex bison gcc
+
+
+flex --version
+gcc --version
+
+
+
+
+
+Create Your Program File
+
+nano english_pos.l
+
+
+
+
+
+%{
+#include <stdio.h>
+%}
+
+%%
+"he"|"she"|"we"|"they"|"it"      { printf("Pronoun: %s\n", yytext); }
+
+"car"|"house"|"man"|"city"|"state" { printf("Noun: %s\n", yytext); }
+
+"come"|"go"|"walk"|"read"|"write" { printf("Verb: %s\n", yytext); }
+
+"pretty"|"old"|"blue"|"smart"     { printf("Adjective: %s\n", yytext); }
+
+"quickly"|"slowly"|"beautifully"  { printf("Adverb: %s\n", yytext); }
+
+"by"|"with"|"about"|"until"       { printf("Preposition: %s\n", yytext); }
+
+"and"|"but"|"or"|"because"        { printf("Conjunction: %s\n", yytext); }
+
+"oh"|"wow"|"oops"                 { printf("Interjection: %s\n", yytext); }
+
+[a-zA-Z]+                         { printf("Unknown: %s\n", yytext); }
+
+[ \t\n]+                          ;
+
+%%
+
+int main() {
+    printf("Enter sentence:\n");
+    yylex();
+    return 0;
+}
+
+int yywrap() {
+    return 1;
+}
+
+
+
+
+
+
+Save and Exit
+Ctrl + X
+Y
+Enter
+
+
+
+Convert LEX → C Code
+
+flex english_pos.l
+
+
+Compile C Code
+gcc lex.yy.c -o english_pos
+
+
+
+Give Input
+
+he walk quickly and she read
+
+
+
+
+
+
+
+
+
+
+
+explaination:
+
+
+Alright—here’s how you should **explain 3(a) to an external examiner** clearly and confidently (not too robotic, not too casual).
+
+---
+
+# 🎯 **Assignment 3(a) Explanation (Ready to Speak)**
+
+## 🧾 **1. Introduction**
+
+This program implements a **lexical analyzer using LEX (Flex)** for identifying **parts of speech in a subset of the English language** .
+
+A lexical analyzer is the **first phase of a compiler**, which reads input and breaks it into meaningful units called **tokens**.
+
+In this program, tokens are:
+
+* Noun
+* Pronoun
+* Verb
+* Adjective
+* Adverb
+* Preposition
+* Conjunction
+* Interjection
+
+---
+
+## 🎯 **2. Objective**
+
+The objective is to:
+
+* Read an English sentence as input
+* Identify each word’s **part of speech**
+* Print the category
+* **Without using a symbol table**
+
+---
+
+## ⚙️ **3. Working of the Program**
+
+This program is written using **LEX**, which works on **pattern matching**.
+
+The code has 3 sections:
+
+---
+
+### 🔹 (1) Definition Section
+
+```c
+%{
+#include <stdio.h>
+%}
+```
+
+👉 Used to include header files
+
+---
+
+### 🔹 (2) Rules Section (Main Logic)
+
+This is the most important part.
+
+Example:
+
+```lex
+"he"|"she"|"we" { printf("Pronoun: %s\n", yytext); }
+```
+
+👉 Meaning:
+
+* If input matches `"he"`, `"she"`, etc.
+* It prints → Pronoun
+
+---
+
+Another example:
+
+```lex
+[a-zA-Z]+ { printf("Unknown: %s\n", yytext); }
+```
+
+👉 If word is not defined → it is treated as **Unknown**
+
+---
+
+### 🔹 (3) User Section
+
+```c
+int main() {
+    yylex();
+}
+```
+
+👉 `yylex()`:
+
+* Reads input
+* Matches patterns
+* Executes corresponding actions
+
+---
+
+## 🧠 **4. Important Concepts**
+
+### 🔸 What is `yytext`?
+
+* It stores the **matched word**
+
+Example:
+
+```c
+Input: he
+yytext = "he"
+```
+
+---
+
+### 🔸 What is Pattern Matching?
+
+* Matching input with predefined rules
+
+---
+
+### 🔸 Why order matters?
+
+* LEX checks rules **top to bottom**
+* First match is executed
+
+---
+
+## 💻 **5. Example Execution**
+
+### Input:
+
+```id="r4dx2q"
+he walk quickly and she read
+```
+
+### Output:
+
+```id="kl3c2o"
+Pronoun: he
+Verb: walk
+Adverb: quickly
+Conjunction: and
+Pronoun: she
+Verb: read
+```
+
+---
+
+## ⚠️ **6. Limitations**
+
+* Only predefined words are recognized
+* Words like **“walking”, “runs”** may show as Unknown
+* No grammar checking
+* No symbol table (no storage)
+
+---
+
+## 🔍 **7. Why Symbol Table is NOT used here**
+
+In this assignment:
+
+* We only **identify tokens**
+* We do NOT store them
+
+Symbol table is used in later compiler phases, not required here
+
+---
+
+## 🧾 **8. Conclusion (Say confidently)**
+
+This program successfully demonstrates a lexical analyzer using LEX for identifying parts of speech in a subset of English language using pattern matching, without using a symbol table.
+
+---
+
+# 🎯 **Viva Questions (They WILL ask this)**
+
+👉 What is LEX?
+
+* Tool to generate lexical analyzer
+
+👉 What is token?
+
+* Smallest meaningful unit
+
+👉 What is yytext?
+
+* Stores matched string
+
+👉 What is yylex()?
+
+* Function that performs lexical analysis
+
+👉 Why some words show "Unknown"?
+
+* Because only limited patterns are defined
+
+👉 Why no symbol table?
+
+* Only classification required
+
+---
+
+# 🧠 **Pro Tip (Very Important)**
+
+When explaining, don’t say:
+❌ “This prints noun, verb…”
+
+Say:
+✅ “This program uses pattern matching in LEX to classify input words into parts of speech.”
+
+---
+
+If you want next:
+👉 I can prepare **exact speaking script for 3(b), 3(c), 3(d)**
+👉 Or give **1-page viva cheat sheet (very useful before exam)**
+
+
+
+
+
+

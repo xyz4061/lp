@@ -1,0 +1,328 @@
+Install Required Tools
+sudo apt update
+sudo apt install flex bison gcc
+
+
+flex --version
+bison --version
+gcc --version
+
+
+
+
+create file 
+
+
+nano func.l
+
+
+
+
+%{
+#include "y.tab.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+%}
+
+%%
+sqrt            return SQRT;
+strlen          return STRLEN;
+[0-9]+          { yylval.num = atoi(yytext); return NUMBER; }
+\"[a-zA-Z]+\"   {
+                    yylval.str = strdup(yytext);
+                    return STRING;
+                }
+[ \t]           ;
+\n              return '\n';
+.               return yytext[0];
+%%
+
+int yywrap() { return 1; }
+
+
+
+
+nano func.y
+
+
+
+%{
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <string.h>
+
+int yylex();
+void yyerror(const char *s);
+%}
+
+%union {
+    int num;
+    char *str;
+}
+
+%token <num> NUMBER
+%token <str> STRING
+%token SQRT STRLEN
+
+%type <num> expr
+
+%%
+input:
+    expr '\n'   { printf("Result = %d\n", $1); }
+    ;
+
+expr:
+      SQRT '(' NUMBER ')'     { $$ = sqrt($3); }
+    | STRLEN '(' STRING ')'   { $$ = strlen($3) - 2; }
+    ;
+%%
+
+int main()
+{
+    printf("Enter function: ");
+    yyparse();
+    return 0;
+}
+
+void yyerror(const char *s)
+{
+    printf("Error: %s\n", s);
+}
+
+
+
+Compile
+
+yacc -d func.y
+flex func.l
+gcc lex.yy.c y.tab.c -lm -o func
+./func
+
+
+Test
+
+Enter function: sqrt(25)
+Result = 5
+
+
+Enter function: strlen("India")
+Result = 5
+
+
+
+
+
+
+
+
+
+
+
+
+explination :
+
+Here’s how you can **explain 4.B (Built-in Functions using YACC + LEX)** clearly to your teacher in viva — simple, structured, and confident.
+
+---
+
+# 🧠 What we did in **4.B**
+
+In this part, we created a program using **LEX and YACC** to evaluate **built-in functions**:
+
+* `sqrt(number)`
+* `strlen("string")`
+
+Example:
+
+```text
+sqrt(25) → 5
+strlen("India") → 5
+```
+
+
+
+---
+
+# 🔹 Overall Working
+
+Again, we divide the work into **2 parts**:
+
+---
+
+## 1️⃣ LEX (Lexical Analyzer)
+
+👉 LEX reads input and converts it into tokens.
+
+We defined tokens like:
+
+* `SQRT` → for keyword `sqrt`
+* `STRLEN` → for keyword `strlen`
+* `NUMBER` → for numbers (25, 10, etc.)
+* `STRING` → for text inside quotes ("India")
+
+---
+
+### Example Input:
+
+```text
+strlen("India")
+```
+
+LEX converts it into:
+
+```text
+STRLEN ( STRING )
+```
+
+---
+
+## 2️⃣ YACC (Parser)
+
+👉 YACC checks syntax and performs evaluation using rules.
+
+---
+
+# 🔹 Grammar we used
+
+```c
+expr:
+    SQRT '(' NUMBER ')'
+  | STRLEN '(' STRING ')'
+```
+
+---
+
+# 🔹 How evaluation happens
+
+### ✅ Case 1: `sqrt(25)`
+
+1. LEX → `SQRT ( NUMBER )`
+2. YACC matches rule:
+
+```c
+SQRT '(' NUMBER ')'
+```
+
+3. Action:
+
+```c
+$$ = sqrt($3);
+```
+
+👉 Calls **sqrt() from `<math.h>`**
+
+Output:
+
+```text
+Result = 5
+```
+
+---
+
+### ✅ Case 2: `strlen("India")`
+
+1. LEX → `STRLEN ( STRING )`
+2. YACC matches:
+
+```c
+STRLEN '(' STRING ')'
+```
+
+3. Action:
+
+```c
+$$ = strlen($3) - 2;
+```
+
+👉 Why `-2`?
+Because `"India"` includes quotes → length = 7
+Actual string = 5 → so subtract 2
+
+Output:
+
+```text
+Result = 5
+```
+
+---
+
+# 🔹 What is `%union` (VERY IMPORTANT)
+
+We used:
+
+```c
+%union {
+    int num;
+    char *str;
+}
+```
+
+👉 This allows YACC to handle:
+
+* integers (for numbers)
+* strings (for text)
+
+---
+
+# 🔹 Flow of execution
+
+1. User enters function
+2. LEX converts input → tokens
+3. YACC matches grammar
+4. Executes action (`sqrt` or `strlen`)
+5. Prints result
+
+---
+
+# 🔹 Key Concepts to say in Viva 💯
+
+👉 “LEX identifies tokens like sqrt, strlen, number, and string.”
+
+👉 “YACC uses grammar rules to match function patterns and evaluate them.”
+
+👉 “We used `%union` to support multiple data types.”
+
+👉 “Math library `<math.h>` is used for sqrt, and `<string.h>` for strlen.”
+
+---
+
+# 🔹 One-line answer (quick viva)
+
+> “We used LEX to tokenize functions and YACC grammar to evaluate sqrt and strlen using built-in C libraries.”
+
+---
+
+# ⚠️ Important viva traps
+
+### ❓ Why `-lm` during compilation?
+
+👉 To link math library for `sqrt()`
+
+---
+
+### ❓ Why `%union` needed?
+
+👉 Because we handle both **int and string types**
+
+---
+
+### ❓ What happens if syntax is wrong?
+
+👉 `yyerror()` is called
+
+---
+
+# 🚀 You’re fully prepared
+
+If you want next:
+
+* 🔥 combined viva questions (most expected)
+* 📄 theory write-up for journal
+* ⚡ last-minute cheat sheet
+
+Just tell 👍
+
+
+

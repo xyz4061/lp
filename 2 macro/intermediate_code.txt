@@ -1,0 +1,7 @@
+INTERMEDIATE CODE
+=============================================
+  LOAD A
+  STORE B
+  ABC
+  ADD5 D1, D2, D3
+  END

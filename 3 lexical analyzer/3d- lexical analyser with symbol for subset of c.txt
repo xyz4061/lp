@@ -1,0 +1,403 @@
+Install Required Software:
+
+sudo apt update
+sudo apt install flex bison gcc
+
+
+flex --version
+gcc --version
+
+
+
+Create File
+nano c_lex_sym.l
+
+Paste This Code
+%{
+#include <stdio.h>
+#include <string.h>
+
+char symtab[100][50];
+int count = 0;
+
+void add(char *id) {
+    for(int i = 0; i < count; i++) {
+        if(strcmp(symtab[i], id) == 0)
+            return;   // avoid duplicates
+    }
+    strcpy(symtab[count++], id);
+}
+%}
+
+%%
+"int"|"float"|"if"|"else"|"for"|"while"|"return"|"printf" {
+    printf("Keyword: %s\n", yytext);
+}
+
+[0-9]+(\.[0-9]+)? {
+    printf("Number: %s\n", yytext);
+}
+
+[a-zA-Z_][a-zA-Z0-9_]* {
+    printf("Identifier: %s\n", yytext);
+    add(yytext);   // store in symbol table
+}
+
+"=="|"!="|"<="|">=" {
+    printf("Relational Operator: %s\n", yytext);
+}
+
+"&&"|"||" {
+    printf("Logical Operator: %s\n", yytext);
+}
+
+[\+\-\*/%=] {
+    printf("Arithmetic Operator: %s\n", yytext);
+}
+
+[(){};,#] {
+    printf("Punctuation: %s\n", yytext);
+}
+
+\".*\" {
+    printf("String: %s\n", yytext);
+}
+
+[ \t\n]+ ;
+
+. {
+    printf("Unknown: %s\n", yytext);
+}
+
+%%
+
+int main() {
+    printf("Enter C code:\n");
+    yylex();
+
+    printf("\n--- SYMBOL TABLE (Identifiers) ---\n");
+    for(int i = 0; i < count; i++) {
+        printf("%s\n", symtab[i]);
+    }
+
+    return 0;
+}
+
+int yywrap() {
+    return 1;
+}
+
+
+Save
+Ctrl + X
+Y
+Enter
+
+
+Generate C Code
+flex c_lex_sym.l
+gcc lex.yy.c -o c_lex_sym
+./c_lex_sym
+
+
+Ctrl + D
+
+
+
+
+
+
+
+
+
+
+explaination:
+
+
+Alright 👍 here is the **final one — 3(d) explanation** in the exact way you should speak to your external examiner.
+
+---
+
+# 🎯 **Assignment 3(d) Explanation (Ready to Speak)**
+
+## 🧾 **1. Introduction**
+
+This program implements a **lexical analyzer using LEX (Flex)** for a **subset of the C programming language with a symbol table** .
+
+A lexical analyzer scans the input program and breaks it into **tokens** such as:
+
+* Keywords
+* Identifiers
+* Numbers
+* Operators
+* Punctuation symbols
+
+In this program, along with identifying tokens, we also **store identifiers in a symbol table**.
+
+---
+
+## 🎯 **2. Objective**
+
+The objective is to:
+
+* Read C language input
+* Identify different tokens
+* Store **identifiers in a symbol table**
+* Avoid duplicate entries
+
+---
+
+## ⚙️ **3. Working of the Program**
+
+This program uses **LEX**, which works based on **pattern matching rules**.
+
+It has 3 sections:
+
+---
+
+### 🔹 (1) Definition Section
+
+```c
+%{
+#include <stdio.h>
+#include <string.h>
+
+char symtab[100][50];
+int count = 0;
+%}
+```
+
+👉 Here:
+
+* `symtab` → stores identifiers
+* `count` → keeps track of number of entries
+
+---
+
+### 🔹 (2) Rules Section (Core Logic)
+
+---
+
+#### ✔ Keywords
+
+```lex
+"int"|"float"|"if"|"while"|"return" {
+    printf("Keyword: %s\n", yytext);
+}
+```
+
+👉 Recognizes predefined words
+
+---
+
+#### ✔ Numbers
+
+```lex
+[0-9]+(\.[0-9]+)? {
+    printf("Number: %s\n", yytext);
+}
+```
+
+---
+
+#### ✔ Identifiers (IMPORTANT)
+
+```lex
+[a-zA-Z_][a-zA-Z0-9_]* {
+    printf("Identifier: %s\n", yytext);
+    add(yytext);
+}
+```
+
+👉 Here:
+
+* Identifier is printed
+* Also **stored in symbol table**
+
+---
+
+### 🔹 Symbol Table Function
+
+```c
+void add(char *id) {
+    for(int i = 0; i < count; i++) {
+        if(strcmp(symtab[i], id) == 0)
+            return;
+    }
+    strcpy(symtab[count++], id);
+}
+```
+
+👉 This function:
+
+* Checks if identifier already exists
+* If not → adds it
+* Avoids duplicates
+
+---
+
+#### ✔ Operators & Symbols
+
+```lex
+[\+\-\*/%=]        → Arithmetic operators  
+"=="|"!="|"<="|">=" → Relational operators  
+[(){};,#]          → Punctuation  
+```
+
+---
+
+### 🔹 (3) User Section
+
+```c
+int main() {
+    yylex();
+
+    printf("\nSymbol Table:\n");
+    for(int i = 0; i < count; i++) {
+        printf("%s\n", symtab[i]);
+    }
+}
+```
+
+👉 After scanning:
+
+* Symbol table is printed
+
+---
+
+## 🧠 **4. Important Concepts**
+
+### 🔸 What is Symbol Table?
+
+* A data structure used to store identifiers for later use in compilation
+
+---
+
+### 🔸 What is stored here?
+
+* Only **identifiers** (not keywords)
+
+---
+
+### 🔸 Why avoid duplicates?
+
+* Efficient memory usage
+* Each identifier stored only once
+
+---
+
+### 🔸 What is `yytext`?
+
+* Stores currently matched token
+
+---
+
+## 💻 **5. Example Execution**
+
+### Input:
+
+```c
+int a = 10;
+float b = 20;
+int c = a + b;
+```
+
+---
+
+### Output:
+
+```
+Keyword: int
+Identifier: a
+Arithmetic Operator: =
+Number: 10
+Punctuation: ;
+
+Keyword: float
+Identifier: b
+Arithmetic Operator: =
+Number: 20
+Punctuation: ;
+
+Keyword: int
+Identifier: c
+Arithmetic Operator: =
+Identifier: a
+Arithmetic Operator: +
+Identifier: b
+Punctuation: ;
+
+--- SYMBOL TABLE ---
+a
+b
+c
+```
+
+---
+
+## ⚠️ **6. Important Points**
+
+* Only identifiers are stored
+* Keywords are not stored
+* No duplicate entries
+* No syntax checking
+
+---
+
+## 🔍 **7. Difference from 3(c)**
+
+| Feature              | 3(c) | 3(d) |
+| -------------------- | ---- | ---- |
+| Token identification | ✅    | ✅    |
+| Symbol table         | ❌    | ✅    |
+| Identifier storage   | ❌    | ✅    |
+
+---
+
+## 🧾 **8. Conclusion (Say confidently)**
+
+This program successfully demonstrates a lexical analyzer for a subset of C language using LEX, which not only identifies tokens but also stores unique identifiers in a symbol table, simulating an important phase of compiler design.
+
+---
+
+# 🎯 **Viva Questions (Very Important)**
+
+👉 What is stored in symbol table?
+
+* Identifiers only
+
+👉 Why not keywords?
+
+* They are predefined
+
+👉 Why avoid duplicates?
+
+* Efficient memory usage
+
+👉 What is strcmp()?
+
+* Compares two strings
+
+👉 What is difference between 3(c) and 3(d)?
+
+* 3(c) → no storage
+* 3(d) → stores identifiers
+
+👉 What is yytext?
+
+* Stores matched token
+
+---
+
+# 🧠 **Pro Tip (Say This Line)**
+
+✅
+
+> “This program extends lexical analysis by incorporating a symbol table to store identifiers, which is essential for later phases of a compiler.”
+
+---
+
+If you want final help:
+👉 I can give **1-page last-minute viva revision sheet**
+👉 Or **complete assignment file ready to submit (all 4 parts)**
+

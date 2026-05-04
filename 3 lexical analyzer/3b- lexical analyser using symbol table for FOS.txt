@@ -1,0 +1,384 @@
+Install Required Software:
+
+sudo apt update
+sudo apt install flex bison gcc
+
+
+flex --version
+gcc --version
+
+
+
+Create File
+
+nano english_pos_sym.l
+
+
+Paste This Code
+%{
+#include <stdio.h>
+#include <string.h>
+
+char symtab[100][50];
+int count = 0;
+
+void add_to_table(char *word) {
+    for(int i = 0; i < count; i++) {
+        if(strcmp(symtab[i], word) == 0)
+            return;   // avoid duplicates
+    }
+    strcpy(symtab[count++], word);
+}
+%}
+
+%%
+"he"|"she"|"we"|"they"|"it" {
+    printf("Pronoun: %s\n", yytext);
+    add_to_table(yytext);
+}
+
+"car"|"house"|"man"|"city"|"state" {
+    printf("Noun: %s\n", yytext);
+    add_to_table(yytext);
+}
+
+"come"|"go"|"walk"|"read"|"write" {
+    printf("Verb: %s\n", yytext);
+    add_to_table(yytext);
+}
+
+"pretty"|"old"|"blue"|"smart" {
+    printf("Adjective: %s\n", yytext);
+    add_to_table(yytext);
+}
+
+"quickly"|"slowly"|"beautifully" {
+    printf("Adverb: %s\n", yytext);
+    add_to_table(yytext);
+}
+
+"by"|"with"|"about"|"until" {
+    printf("Preposition: %s\n", yytext);
+    add_to_table(yytext);
+}
+
+"and"|"but"|"or"|"because" {
+    printf("Conjunction: %s\n", yytext);
+    add_to_table(yytext);
+}
+
+"oh"|"wow"|"oops" {
+    printf("Interjection: %s\n", yytext);
+    add_to_table(yytext);
+}
+
+[a-zA-Z]+ {
+    printf("Unknown: %s\n", yytext);
+    add_to_table(yytext);
+}
+
+[ \t\n]+ ;
+
+%%
+
+int main() {
+    printf("Enter sentence:\n");
+    yylex();
+
+    printf("\n--- SYMBOL TABLE ---\n");
+    for(int i = 0; i < count; i++) {
+        printf("%s\n", symtab[i]);
+    }
+
+    return 0;
+}
+
+int yywrap() {
+    return 1;
+}
+
+
+Save & Exit
+
+Ctrl + X
+Y
+Enter
+
+
+
+flex english_pos_sym.l
+
+
+gcc lex.yy.c -o english_pos_sym
+
+
+./english_pos_sym
+
+
+
+Give Input
+he walk quickly and she walk
+
+
+for symbol table
+Ctrl + D
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+explaination:
+
+
+Alright—here’s how to **explain 3(b) to an external examiner** clearly, step-by-step, just like a proper viva answer.
+
+---
+
+# 🎯 **Assignment 3(b) Explanation (Ready to Speak)**
+
+## 🧾 **1. Introduction**
+
+This program implements a **lexical analyzer using LEX (Flex)** for identifying **parts of speech in a subset of English language with a symbol table** .
+
+A lexical analyzer scans input and converts it into **tokens**.
+In this program, tokens are parts of speech such as:
+
+* Noun
+* Pronoun
+* Verb
+* Adjective
+* Adverb
+* Preposition
+* Conjunction
+* Interjection
+
+Additionally, this program also **stores the words in a symbol table**.
+
+---
+
+## 🎯 **2. Objective**
+
+The objective is to:
+
+* Read an English sentence
+* Identify the part of speech of each word
+* Store the words in a **symbol table**
+* Avoid duplicates in the table
+
+---
+
+## ⚙️ **3. Working of the Program**
+
+This program is written using **LEX**, which uses **pattern matching**.
+
+It has 3 sections:
+
+---
+
+### 🔹 (1) Definition Section
+
+```c
+%{
+#include <stdio.h>
+#include <string.h>
+
+char symtab[100][50];
+int count = 0;
+%}
+```
+
+👉 Here:
+
+* `symtab` → stores words
+* `count` → number of stored words
+
+---
+
+### 🔹 (2) Rules Section (Main Logic)
+
+Example:
+
+```lex
+"he"|"she"|"we" {
+    printf("Pronoun: %s\n", yytext);
+    add_to_table(yytext);
+}
+```
+
+👉 What happens:
+
+1. Word is matched
+2. Category is printed
+3. Word is stored in symbol table
+
+---
+
+### 🔹 Symbol Table Function
+
+```c
+void add_to_table(char *word) {
+    for(int i = 0; i < count; i++) {
+        if(strcmp(symtab[i], word) == 0)
+            return;
+    }
+    strcpy(symtab[count++], word);
+}
+```
+
+👉 This function:
+
+* Checks if word already exists
+* If not → adds it
+* Prevents duplicates
+
+---
+
+### 🔹 (3) User Section
+
+```c
+int main() {
+    yylex();
+
+    for(int i = 0; i < count; i++) {
+        printf("%s\n", symtab[i]);
+    }
+}
+```
+
+👉 `yylex()` scans input
+👉 After scanning → symbol table is printed
+
+---
+
+## 🧠 **4. Important Concepts**
+
+### 🔸 What is Symbol Table?
+
+* A data structure used to store tokens
+* Here it stores **unique words**
+
+---
+
+### 🔸 What is `yytext`?
+
+* Stores the matched word
+
+---
+
+### 🔸 Why avoid duplicates?
+
+* To reduce redundancy
+* Efficient storage
+
+---
+
+## 💻 **5. Example Execution**
+
+### Input:
+
+```id="x8p2rq"
+he walk quickly and she walk
+```
+
+### Output:
+
+```id="l1j7zm"
+Pronoun: he
+Verb: walk
+Adverb: quickly
+Conjunction: and
+Pronoun: she
+Verb: walk
+
+--- SYMBOL TABLE ---
+he
+walk
+quickly
+and
+she
+```
+
+👉 Note:
+
+* "walk" appears only once
+
+---
+
+## ⚠️ **6. Important Points**
+
+* Only classification + storage
+* No grammar checking
+* Limited predefined words
+* Symbol table stores **unique entries only**
+
+---
+
+## 🔍 **7. Difference from 3(a)**
+
+| Feature        | 3(a) | 3(b) |
+| -------------- | ---- | ---- |
+| Identify words | ✅    | ✅    |
+| Symbol table   | ❌    | ✅    |
+| Store tokens   | ❌    | ✅    |
+
+---
+
+## 🧾 **8. Conclusion (Say confidently)**
+
+This program demonstrates a lexical analyzer using LEX that identifies parts of speech and stores unique words in a symbol table, showing how lexical analysis and storage work together in compiler design.
+
+---
+
+# 🎯 **Viva Questions (Very Important)**
+
+👉 What is symbol table?
+
+* Data structure storing tokens/identifiers
+
+👉 Why used here?
+
+* To store words for later use
+
+👉 Why remove duplicates?
+
+* Efficient memory usage
+
+👉 What is strcmp()?
+
+* Compares two strings
+
+👉 Difference between 3(a) and 3(b)?
+
+* 3(a) → no storage
+* 3(b) → stores tokens
+
+👉 What is yylex()?
+
+* Performs lexical analysis
+
+---
+
+# 🧠 **Pro Tip (Important)**
+
+When explaining, say:
+✅ “This program not only identifies tokens but also stores them in a symbol table for future use.”
+
+NOT:
+❌ “It just prints and stores words”
+
+---
+
+If you want next:
+👉 I’ll give **3(c) and 3(d) explanation (same viva style)**
+👉 Or a **1-page revision sheet before practical**
+
+

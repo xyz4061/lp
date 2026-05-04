@@ -1,0 +1,414 @@
+Install Required Software:
+
+sudo apt update
+sudo apt install flex bison gcc
+
+
+flex --version
+gcc --version
+
+
+create File
+nano c_lex.l
+
+
+Paste This Code
+%{
+#include <stdio.h>
+%}
+
+%%
+"int"|"float"|"if"|"else"|"for"|"while"|"return"|"printf" {
+    printf("Keyword: %s\n", yytext);
+}
+
+[0-9]+(\.[0-9]+)? {
+    printf("Number: %s\n", yytext);
+}
+
+[a-zA-Z_][a-zA-Z0-9_]* {
+    printf("Identifier: %s\n", yytext);
+}
+
+"=="|"!="|"<="|">=" {
+    printf("Relational Operator: %s\n", yytext);
+}
+
+"&&"|"||" {
+    printf("Logical Operator: %s\n", yytext);
+}
+
+[\+\-\*/%=] {
+    printf("Arithmetic Operator: %s\n", yytext);
+}
+
+[(){};,#] {
+    printf("Punctuation: %s\n", yytext);
+}
+
+\".*\" {
+    printf("String: %s\n", yytext);
+}
+
+[ \t\n]+ ;
+
+. {
+    printf("Unknown: %s\n", yytext);
+}
+
+%%
+
+int main() {
+    printf("Enter C code:\n");
+    yylex();
+    return 0;
+}
+
+int yywrap() {
+    return 1;
+}
+
+
+
+Save
+
+Ctrl + X
+Y
+Enter
+
+Generate C File
+
+flex c_lex.l
+
+gcc lex.yy.c -o c_lex
+
+./c_lex
+
+
+Give Input
+int a = 10;
+float b = 20.5;
+if(a < b) {
+    printf("Hello");
+}
+
+
+Ctrl + D
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+explaination:
+
+Alright 👍 here’s how to **explain 3(c) to your external examiner** clearly, confidently, and in proper technical language.
+
+---
+
+# 🎯 **Assignment 3(c) Explanation (Ready to Speak)**
+
+## 🧾 **1. Introduction**
+
+This program implements a **lexical analyzer using LEX (Flex)** for a **subset of the C programming language without using a symbol table** .
+
+A lexical analyzer is the **first phase of a compiler**, which scans the input program and converts it into **tokens**.
+
+In this program, the tokens include:
+
+* Keywords
+* Identifiers
+* Numbers
+* Operators
+* Punctuation symbols
+* Strings
+
+---
+
+## 🎯 **2. Objective**
+
+The objective is to:
+
+* Read C language input
+* Identify different types of tokens
+* Print their category
+* **Without storing them in a symbol table**
+
+---
+
+## ⚙️ **3. Working of the Program**
+
+This program is implemented using **LEX**, which works on **pattern matching rules**.
+
+It has 3 main sections:
+
+---
+
+### 🔹 (1) Definition Section
+
+```c id="5mkmv4"
+%{
+#include <stdio.h>
+%}
+```
+
+👉 Used for including required header files
+
+---
+
+### 🔹 (2) Rules Section (Core Logic)
+
+This section contains **patterns and actions**.
+
+---
+
+#### ✔ Example: Keywords
+
+```lex id="y2c4vv"
+"int"|"float"|"if"|"while" {
+    printf("Keyword: %s\n", yytext);
+}
+```
+
+👉 If input matches these → printed as **Keyword**
+
+---
+
+#### ✔ Example: Numbers
+
+```lex id="n74otq"
+[0-9]+(\.[0-9]+)? {
+    printf("Number: %s\n", yytext);
+}
+```
+
+👉 Matches:
+
+* Integer → 10
+* Float → 20.5
+
+---
+
+#### ✔ Example: Identifiers
+
+```lex id="6fgd0z"
+[a-zA-Z_][a-zA-Z0-9_]* {
+    printf("Identifier: %s\n", yytext);
+}
+```
+
+👉 Matches variable names like:
+
+* a
+* num1
+* total_sum
+
+---
+
+#### ✔ Example: Operators
+
+```lex id="cvwq21"
+[\+\-\*/%=] {
+    printf("Arithmetic Operator: %s\n", yytext);
+}
+```
+
+👉 Matches:
+
+* +, -, *, /, %
+
+---
+
+#### ✔ Example: Punctuation
+
+```lex id="sn7fux"
+[(){};,#] {
+    printf("Punctuation: %s\n", yytext);
+}
+```
+
+---
+
+#### ✔ Example: Strings
+
+```lex id="d8c0zk"
+\".*\" {
+    printf("String: %s\n", yytext);
+}
+```
+
+👉 Matches:
+
+* "Hello"
+
+---
+
+#### ✔ Unknown Characters
+
+```lex id="6wtr6o"
+. {
+    printf("Unknown: %s\n", yytext);
+}
+```
+
+---
+
+### 🔹 (3) User Section
+
+```c id="fy0rvt"
+int main() {
+    yylex();
+    return 0;
+}
+```
+
+👉 `yylex()`:
+
+* Reads input
+* Matches patterns
+* Executes actions
+
+---
+
+## 🧠 **4. Important Concepts**
+
+### 🔸 What is Token?
+
+* Smallest unit in a program (keyword, identifier, etc.)
+
+---
+
+### 🔸 What is `yytext`?
+
+* Stores matched token
+
+---
+
+### 🔸 Why order matters?
+
+* LEX checks rules **top to bottom**
+* Keywords must come before identifiers
+
+---
+
+## 💻 **5. Example Execution**
+
+### Input:
+
+```c id="p0p6kz"
+int a = 10;
+if(a < 20) {
+    printf("Hello");
+}
+```
+
+---
+
+### Output:
+
+```id="w5grb6"
+Keyword: int
+Identifier: a
+Arithmetic Operator: =
+Number: 10
+Punctuation: ;
+
+Keyword: if
+Punctuation: (
+Identifier: a
+Relational Operator: <
+Number: 20
+Punctuation: )
+Punctuation: {
+
+Keyword: printf
+Punctuation: (
+String: "Hello"
+Punctuation: )
+Punctuation: ;
+
+Punctuation: }
+```
+
+---
+
+## ⚠️ **6. Limitations**
+
+* Only subset of C is supported
+* No syntax checking
+* No semantic analysis
+* No symbol table used
+
+---
+
+## 🔍 **7. Why Symbol Table is NOT used**
+
+In this program:
+
+* We only **identify tokens**
+* We do NOT store them
+* Storage is done in next assignment (3d)
+
+---
+
+## 🧾 **8. Conclusion (Say confidently)**
+
+This program successfully demonstrates a lexical analyzer for a subset of C language using LEX, which identifies different tokens such as keywords, identifiers, operators, and constants without using a symbol table.
+
+---
+
+# 🎯 **Viva Questions (Very Important)**
+
+👉 What is identifier?
+
+* Name given to variable/function
+
+👉 Difference between keyword & identifier?
+
+* Keyword → predefined
+* Identifier → user-defined
+
+👉 Why keywords written before identifier rule?
+
+* Because LEX matches first rule
+
+👉 What is yytext?
+
+* Stores matched token
+
+👉 Why no symbol table?
+
+* Only token identification required
+
+👉 What are tokens in C?
+
+* Keywords, identifiers, operators, constants
+
+---
+
+# 🧠 **Pro Tip (Important)**
+
+Say this line confidently:
+
+✅
+
+> “This program performs lexical analysis by scanning C code and classifying tokens using pattern matching in LEX.”
+
+---
+
+If you want:
+👉 I’ll give **3(d explanation (final + most important)**
+👉 Or **1-page quick revision before viva**
+👉 Or **complete practical file ready**
+
+

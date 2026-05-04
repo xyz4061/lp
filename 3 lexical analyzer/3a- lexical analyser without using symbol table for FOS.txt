@@ -76,6 +76,7 @@ flex english_pos.l
 Compile C Code
 gcc lex.yy.c -o english_pos
 
+./english_pos
 
 
 Give Input
